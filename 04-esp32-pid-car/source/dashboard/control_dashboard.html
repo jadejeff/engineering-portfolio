@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双轮 RPM 闭环控制台</title>
+<style>
+:root {
+  --bg:#0b1120;
+  --card:#111827;
+  --border:#243044;
+  --text:#e5edf7;
+  --muted:#7f8da3;
+  --blue:#3b82f6;
+  --green:#22c55e;
+  --yellow:#f59e0b;
+  --cyan:#06b6d4;
+  --orange:#f97316;
+  --red:#ef4444;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+  padding:16px;
+}
+button,input { font:inherit; }
+.app { max-width:1500px; margin:0 auto; }
+.header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:12px;
+}
+.title-wrap { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+h1 { font-size:21px; }
+.connection { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; }
+.dot { width:8px; height:8px; border-radius:50%; background:#566074; }
+.dot.on { background:var(--green); box-shadow:0 0 8px rgba(34,197,94,.65); }
+.btn {
+  border:0;
+  border-radius:7px;
+  padding:8px 16px;
+  font-weight:700;
+  font-size:12px;
+  cursor:pointer;
+}
+.btn-connect { background:var(--green); color:#07140a; }
+.btn-disconnect { background:var(--red); color:white; }
+
+.telemetry {
+  display:grid;
+  grid-template-columns:repeat(7,minmax(125px,1fr));
+  gap:10px;
+  margin-bottom:10px;
+}
+.tele-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 14px;
+}
+.tele-label { color:var(--muted); font-size:11px; margin-bottom:8px; }
+.tele-value {
+  font-family:Consolas,"JetBrains Mono",monospace;
+  font-size:29px;
+  line-height:1;
+  font-weight:800;
+}
+.tele-unit { color:var(--muted); font-size:11px; margin-left:4px; }
+.left-value { color:var(--blue); }
+.right-value { color:var(--green); }
+.target-value { color:var(--yellow); }
+.diff-value { color:var(--cyan); }
+.distance-value { color:var(--orange); }
+.left-overshoot-value { color:#60a5fa; }
+.right-overshoot-value { color:#4ade80; }
+
+.chart-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:11px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+.chart-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 18px 10px;
+  border-bottom:1px solid var(--border);
+}
+.chart-head h2 { font-size:17px; margin-bottom:4px; }
+.chart-sub { color:var(--muted); font-size:11px; }
+.chart-actions { display:flex; gap:7px; }
+.btn-small {
+  padding:5px 11px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:11px;
+}
+.btn-small:hover { color:var(--text); border-color:#52627a; }
+.legend {
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  padding:9px 18px;
+  color:var(--muted);
+  font-size:11px;
+}
+.legend-item { display:flex; align-items:center; gap:6px; }
+.legend-line { width:20px; height:2px; border-radius:2px; }
+.legend-dash { width:20px; border-top:2px dashed var(--yellow); }
+.chart-wrap { position:relative; height:390px; }
+canvas { width:100%; height:100%; display:block; }
+.chart-note {
+  border-top:1px solid var(--border);
+  padding:9px 18px;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.bottom {
+  display:grid;
+  grid-template-columns:300px minmax(300px,1fr);
+  gap:10px;
+}
+.panel {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px;
+}
+.panel h3 { font-size:12px; color:var(--muted); margin-bottom:12px; }
+.dpad { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.dpad-row { display:flex; gap:5px; }
+.dpad-btn,.stop-btn {
+  width:64px;
+  height:58px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:rgba(255,255,255,.025);
+  color:var(--text);
+  font-size:22px;
+  cursor:pointer;
+  user-select:none;
+  touch-action:none;
+}
+.dpad-btn.pressed { background:rgba(6,182,212,.18); border-color:var(--cyan); }
+.stop-btn { font-size:11px; font-weight:800; color:var(--red); }
+.keys { margin-top:10px; color:var(--muted); font-size:10px; text-align:center; }
+
+.control-grid { display:grid; grid-template-columns:minmax(260px,1fr) minmax(220px,.72fr); gap:18px; }
+.slider-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px; }
+.slider-label span:last-child { color:var(--yellow); font-family:Consolas,monospace; font-weight:800; }
+.slider-row { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:10px; }
+input[type=range] { width:100%; accent-color:var(--cyan); }
+.presets { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:12px; }
+.preset {
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:7px 4px;
+  color:var(--text);
+  background:transparent;
+  cursor:pointer;
+  font-size:11px;
+}
+.preset:hover { color:var(--cyan); border-color:var(--cyan); }
+.toggle-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:9px 10px;
+  margin-bottom:7px;
+  cursor:pointer;
+  font-size:12px;
+}
+.toggle { width:38px; height:22px; background:#283449; border-radius:12px; position:relative; }
+.toggle::after {
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  top:2px;
+  left:2px;
+  border-radius:50%;
+  background:white;
+  transition:.2s;
+}
+.toggle.on { background:var(--green); }
+.toggle.on::after { transform:translateX(16px); }
+.status {
+  margin-top:9px;
+  min-height:35px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+.status.ok { color:var(--green); border-color:rgba(34,197,94,.35); }
+.status.warn { color:var(--orange); border-color:rgba(249,115,22,.35); }
+.status.error { color:var(--red); border-color:rgba(239,68,68,.35); }
+.alert {
+  display:none;
+  margin-top:7px;
+  padding:7px;
+  text-align:center;
+  border:1px solid rgba(239,68,68,.35);
+  color:var(--red);
+  background:rgba(239,68,68,.08);
+  border-radius:6px;
+  font-size:11px;
+}
+.alert.show { display:block; }
+
+@media (max-width:1200px) {
+  .telemetry { grid-template-columns:repeat(4,1fr); }
+}
+@media (max-width:950px) {
+  .telemetry { grid-template-columns:repeat(2,1fr); }
+  .bottom { grid-template-columns:1fr; }
+  .control-grid { grid-template-columns:1fr; }
+  .chart-wrap { height:310px; }
+}
+@media (max-width:560px) {
+  body { padding:8px; }
+  .header { align-items:flex-start; }
+  .telemetry { grid-template-columns:1fr 1fr; }
+  .tele-value { font-size:24px; }
+  .chart-head { flex-direction:column; }
+  .presets { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="title-wrap">
+      <h1>🏎️ 双轮 RPM 闭环控制台</h1>
+      <div class="connection">
+        <span class="dot" id="connDot"></span>
+        <span id="deviceName">未连接设备</span>
+        <span id="connText">离线</span>
+      </div>
+    </div>
+    <button class="btn btn-connect" id="connectBtn">连接蓝牙</button>
+  </header>
+
+  <section class="telemetry">
+    <div class="tele-card">
+      <div class="tele-label">左轮实测速度</div>
+      <span class="tele-value left-value" id="leftRpm">0</span><span class="tele-unit">RPM</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">右轮实测速度</div>
+      <span class="tele-value right-value" id="rightRpm">0</span><span class="tele-unit">RPM</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">闭环目标速度</div>
+      <span class="tele-value target-value" id="targetRpm">0</span><span class="tele-unit">RPM</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">左右速度差（左 − 右）</div>
+      <span class="tele-value diff-value" id="rpmDiff">0</span><span class="tele-unit">RPM</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">左轮实时超调量</div>
+      <span class="tele-value left-overshoot-value" id="leftOvershoot">0.0</span><span class="tele-unit">%</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">右轮实时超调量</div>
+      <span class="tele-value right-overshoot-value" id="rightOvershoot">0.0</span><span class="tele-unit">%</span>
+    </div>
+    <div class="tele-card">
+      <div class="tele-label">障碍距离</div>
+      <span class="tele-value distance-value" id="distance">--</span><span class="tele-unit">cm</span>
+    </div>
+  </section>
+
+  <section class="chart-card">
+    <div class="chart-head">
+      <div>
+        <h2>左右轮实际转速响应</h2>
+        <div class="chart-sub">所有速度指令、目标值和反馈值均使用 RPM；图中仅保留最近 60 秒。</div>
+      </div>
+      <div class="chart-actions">
+        <button class="btn-small" id="clearBtn">清除曲线</button>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-line" style="background:var(--blue)"></span>左轮实测 RPM</span>
+      <span class="legend-item"><span class="legend-line" style="background:var(--green)"></span>右轮实测 RPM</span>
+      <span class="legend-item"><span class="legend-dash"></span>目标 RPM</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    <div class="chart-note" id="chartNote">等待 ESP32 转速遥测。左右轮实时超调量按 max(0，(当前实测 RPM−目标 RPM)/目标 RPM×100%) 计算，不保留历史峰值。</div>
+  </section>
+
+  <section class="bottom">
+    <div class="panel">
+      <h3>方向控制</h3>
+      <div class="dpad">
+        <div class="dpad-row"><button class="dpad-btn" data-cmd="F">▲</button></div>
+        <div class="dpad-row">
+          <button class="dpad-btn" data-cmd="L">◀</button>
+          <button class="stop-btn" id="stopBtn">STOP</button>
+          <button class="dpad-btn" data-cmd="R">▶</button>
+        </div>
+        <div class="dpad-row"><button class="dpad-btn" data-cmd="B">▼</button></div>
+      </div>
+      <div class="keys">W/S/A/D 控制方向，空格停止</div>
+    </div>
+
+    <div class="panel">
+      <h3>目标速度与模式</h3>
+      <div class="control-grid">
+        <div>
+          <div class="slider-label">
+            <span>目标转速</span>
+            <span><b id="rpmSetting">300</b> RPM</span>
+          </div>
+          <div class="slider-row">
+            <span>0</span>
+            <input type="range" id="rpmSlider" min="0" max="450" step="10" value="300">
+            <span>450</span>
+          </div>
+          <div class="presets">
+            <button class="preset" data-rpm="150">150 RPM</button>
+            <button class="preset" data-rpm="250">250 RPM</button>
+            <button class="preset" data-rpm="350">350 RPM</button>
+            <button class="preset" data-rpm="450">450 RPM</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="toggle-row" id="obstacleRow">
+            <span>🛡️ 自动避障</span>
+            <span class="toggle" id="obstacleToggle"></span>
+          </div>
+          <div class="toggle-row" id="voiceRow">
+            <span>🎤 语音控制</span>
+            <span class="toggle" id="voiceToggle"></span>
+          </div>
+          <div class="status" id="status">控制台就绪</div>
+          <div class="alert" id="alert">检测到障碍物，正在执行避障动作</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+const TX_UUID = '0000fff1-0000-1000-8000-00805f9b34fb';
+const RX_UUID = '0000fff2-0000-1000-8000-00805f9b34fb';
+
+let device = null;
+let txCharacteristic = null;
+let rxCharacteristic = null;
+let connected = false;
+let receiveBuffer = '';
+let connectionStart = 0;
+
+let currentMotion = 'S';
+let speedSendTimer = null;
+let obstacleEnabled = false;
+let voiceEnabled = false;
+let recognition = null;
+
+const MAX_POINTS = 600;
+const data = { time: [], left: [], right: [], target: [] };
+
+// 左右轮实时超调量：仅反映当前采样点，不保留历史最大值。
+const overshoot = {
+  leftPercent: 0,
+  rightPercent: 0
+};
+
+const $ = id => document.getElementById(id);
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const currentSettingRPM = () => clamp(parseInt($('rpmSlider').value, 10) || 0, 0, 450);
+
+function setStatus(message, type = '') {
+  const el = $('status');
+  el.textContent = message;
+  el.className = 'status' + (type ? ' ' + type : '');
+}
+
+function resetOvershoot() {
+  overshoot.leftPercent = 0;
+  overshoot.rightPercent = 0;
+  $('leftOvershoot').textContent = '0.0';
+  $('rightOvershoot').textContent = '0.0';
+}
+
+function updateOvershoot(left, right, target) {
+  if (target <= 0) {
+    resetOvershoot();
+    return;
+  }
+
+  overshoot.leftPercent = Math.max(
+    0,
+    (left - target) / target * 100
+  );
+
+  overshoot.rightPercent = Math.max(
+    0,
+    (right - target) / target * 100
+  );
+
+  $('leftOvershoot').textContent = overshoot.leftPercent.toFixed(1);
+  $('rightOvershoot').textContent = overshoot.rightPercent.toFixed(1);
+}
+
+function updateConnectionUI() {
+  $('connDot').classList.toggle('on', connected);
+  $('connText').textContent = connected ? '在线' : '离线';
+  $('connectBtn').textContent = connected ? '断开连接' : '连接蓝牙';
+  $('connectBtn').className = connected ? 'btn btn-disconnect' : 'btn btn-connect';
+}
+
+async function toggleConnection() {
+  if (connected) {
+    disconnectBluetooth();
+    return;
+  }
+
+  if (!navigator.bluetooth) {
+    setStatus('当前浏览器不支持 Web Bluetooth，请使用 Chrome 或 Edge。', 'error');
+    return;
+  }
+
+  try {
+    setStatus('正在扫描蓝牙设备……');
+    device = await navigator.bluetooth.requestDevice({
+      filters: [
+        { services: [SERVICE_UUID] },
+        { namePrefix: 'BT' },
+        { namePrefix: 'Car' }
+      ],
+      optionalServices: [SERVICE_UUID]
+    });
+
+    device.addEventListener('gattserverdisconnected', handleDisconnected);
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+
+    try {
+      txCharacteristic = await service.getCharacteristic(TX_UUID);
+    } catch (_) {
+      const chars = await service.getCharacteristics();
+      txCharacteristic = chars.find(c => c.properties.notify);
+    }
+
+    try {
+      rxCharacteristic = await service.getCharacteristic(RX_UUID);
+    } catch (_) {
+      const chars = await service.getCharacteristics();
+      rxCharacteristic = chars.find(c => c.properties.write || c.properties.writeWithoutResponse);
+    }
+
+    if (!txCharacteristic || !rxCharacteristic) {
+      throw new Error('未找到完整的收发特征值');
+    }
+
+    await txCharacteristic.startNotifications();
+    txCharacteristic.addEventListener('characteristicvaluechanged', handleNotification);
+
+    connected = true;
+    connectionStart = performance.now();
+    $('deviceName').textContent = device.name || 'BT-CAR';
+    updateConnectionUI();
+    setStatus('蓝牙连接成功，速度命令单位为 RPM。', 'ok');
+  } catch (error) {
+    setStatus('连接失败：' + error.message, 'error');
+  }
+}
+
+function disconnectBluetooth() {
+  if (device?.gatt?.connected) device.gatt.disconnect();
+  handleDisconnected();
+}
+
+function handleDisconnected() {
+  connected = false;
+  txCharacteristic = null;
+  rxCharacteristic = null;
+  currentMotion = 'S';
+  receiveBuffer = '';
+  $('deviceName').textContent = '未连接设备';
+  updatePressedButtons();
+  updateConnectionUI();
+  setStatus('蓝牙已断开', 'warn');
+}
+
+async function sendRaw(text) {
+  if (!connected || !rxCharacteristic) {
+    setStatus('尚未连接蓝牙，未发送：' + text, 'warn');
+    return false;
+  }
+
+  try {
+    await rxCharacteristic.writeValue(new TextEncoder().encode(text + '\n'));
+    return true;
+  } catch (error) {
+    setStatus('发送失败：' + error.message, 'error');
+    return false;
+  }
+}
+
+function buildMotionCommand(motion) {
+  if (motion === 'F' || motion === 'B') {
+    return motion + currentSettingRPM();
+  }
+  return motion;
+}
+
+async function startMotion(motion) {
+  currentMotion = motion;
+  updatePressedButtons();
+  await sendRaw(buildMotionCommand(motion));
+}
+
+async function stopMotion() {
+  currentMotion = 'S';
+  updatePressedButtons();
+  await sendRaw('S');
+}
+
+function updatePressedButtons() {
+  document.querySelectorAll('.dpad-btn').forEach(btn => {
+    btn.classList.toggle('pressed', btn.dataset.cmd === currentMotion);
+  });
+}
+
+function scheduleLiveSpeedUpdate() {
+  clearTimeout(speedSendTimer);
+  if (currentMotion !== 'F' && currentMotion !== 'B') return;
+
+  speedSendTimer = setTimeout(() => {
+    sendRaw(buildMotionCommand(currentMotion));
+  }, 120);
+}
+
+function handleNotification(event) {
+  receiveBuffer += new TextDecoder().decode(event.target.value);
+
+  let newlineIndex;
+  while ((newlineIndex = receiveBuffer.indexOf('\n')) >= 0) {
+    const line = receiveBuffer.slice(0, newlineIndex).trim();
+    receiveBuffer = receiveBuffer.slice(newlineIndex + 1);
+    if (line) parseLine(line);
+  }
+}
+
+function parseLine(line) {
+  let match = line.match(/^S:(\d+(?:\.\d+)?),(\d+(?:\.\d+)?),T:(\d+(?:\.\d+)?)$/i);
+  if (match) {
+    updateSpeed(Number(match[1]), Number(match[2]), Number(match[3]));
+    return;
+  }
+
+  match = line.match(/^D:(\d+(?:\.\d+)?)$/i);
+  if (match) {
+    $('distance').textContent = Number(match[1]).toFixed(1);
+    return;
+  }
+
+  if (/^OK,/.test(line)) {
+    setStatus('ESP32 已执行：' + line.slice(3), 'ok');
+    return;
+  }
+
+  if (/^ERR,/.test(line)) {
+    setStatus('ESP32 返回错误：' + line.slice(4), 'error');
+    return;
+  }
+
+  if (/OBSTACLE/i.test(line)) {
+    $('alert').classList.add('show');
+    setTimeout(() => $('alert').classList.remove('show'), 3000);
+  }
+}
+
+function updateSpeed(left, right, target) {
+  left = Math.max(0, Number(left) || 0);
+  right = Math.max(0, Number(right) || 0);
+  target = Math.max(0, Number(target) || 0);
+
+  $('leftRpm').textContent = Math.round(left);
+  $('rightRpm').textContent = Math.round(right);
+  $('targetRpm').textContent = Math.round(target);
+
+  const difference = left - right;
+  $('rpmDiff').textContent = (difference > 0 ? '+' : '') + Math.round(difference);
+
+  updateOvershoot(left, right, target);
+
+  const time = connectionStart > 0 ? (performance.now() - connectionStart) / 1000 : 0;
+  data.time.push(time);
+  data.left.push(left);
+  data.right.push(right);
+  data.target.push(target);
+
+  while (data.time.length > MAX_POINTS) {
+    Object.values(data).forEach(array => array.shift());
+  }
+
+  if (target > 0) {
+    const avg = (left + right) / 2;
+    const avgError = target - avg;
+    $('chartNote').textContent =
+      `当前平均速度 ${avg.toFixed(1)} RPM，平均跟踪误差 ${avgError >= 0 ? '+' : ''}${avgError.toFixed(1)} RPM；` +
+      `左右差值 ${difference >= 0 ? '+' : ''}${difference.toFixed(1)} RPM；` +
+      `左轮实时超调 ${overshoot.leftPercent.toFixed(1)}%，右轮实时超调 ${overshoot.rightPercent.toFixed(1)}%。`;
+  } else {
+    $('chartNote').textContent = '车辆已停止。闭环是否有效，应判断左右实测 RPM 是否共同收敛到目标 RPM。';
+  }
+
+  drawChart();
+}
+
+function clearChart() {
+  Object.values(data).forEach(array => array.length = 0);
+  resetOvershoot();
+  drawChart();
+}
+
+const canvas = $('chart');
+const ctx = canvas.getContext('2d');
+let chartWidth = 0;
+let chartHeight = 0;
+
+function resizeChart() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  chartWidth = rect.width;
+  chartHeight = rect.height;
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawChart();
+}
+
+function drawChart() {
+  const W = chartWidth;
+  const H = chartHeight;
+  if (!W || !H) return;
+
+  ctx.clearRect(0, 0, W, H);
+  const pad = { left:58, right:20, top:18, bottom:35 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+
+  let maxValue = 450;
+  for (const series of [data.left, data.right, data.target]) {
+    for (const value of series) maxValue = Math.max(maxValue, value);
+  }
+  const yMax = Math.max(500, Math.ceil(maxValue * 1.12 / 100) * 100);
+
+  ctx.font = '10px Consolas, monospace';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  const yStep = yMax <= 600 ? 100 : 200;
+  for (let yValue = 0; yValue <= yMax; yValue += yStep) {
+    const y = pad.top + plotH - yValue / yMax * plotH;
+    ctx.strokeStyle = 'rgba(255,255,255,.075)';
+    ctx.lineWidth = .7;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(W - pad.right, y);
+    ctx.stroke();
+    ctx.fillStyle = '#8290a6';
+    ctx.fillText(String(yValue), pad.left - 8, y);
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,.16)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, pad.top + plotH);
+  ctx.lineTo(W - pad.right, pad.top + plotH);
+  ctx.stroke();
+
+  const length = data.time.length;
+  if (length < 2) {
+    ctx.fillStyle = '#607087';
+    ctx.textAlign = 'center';
+    ctx.font = '13px sans-serif';
+    ctx.fillText('等待 RPM 遥测数据……', W / 2, H / 2);
+    return;
+  }
+
+  const firstTime = data.time[0];
+  const lastTime = data.time[length - 1];
+  const timeSpan = Math.max(1, lastTime - firstTime);
+
+  ctx.fillStyle = '#8290a6';
+  ctx.font = '9px Consolas, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  for (let i = 0; i <= 6; i++) {
+    const x = pad.left + plotW * i / 6;
+    const t = firstTime + timeSpan * i / 6;
+    ctx.fillText(t.toFixed(0) + 's', x, pad.top + plotH + 10);
+  }
+
+  function drawSeries(series, color, dashed = false) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = dashed ? 1.5 : 1.7;
+    ctx.setLineDash(dashed ? [6, 5] : []);
+
+    for (let i = 0; i < length; i++) {
+      const x = pad.left + (data.time[i] - firstTime) / timeSpan * plotW;
+      const value = clamp(Number(series[i]) || 0, 0, yMax);
+      const y = pad.top + plotH - value / yMax * plotH;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  drawSeries(data.target, '#f59e0b', true);
+  drawSeries(data.left, '#3b82f6');
+  drawSeries(data.right, '#22c55e');
+}
+
+function setRpm(value) {
+  const rpm = clamp(Number(value) || 0, 0, 450);
+  $('rpmSlider').value = rpm;
+  $('rpmSetting').textContent = rpm;
+  scheduleLiveSpeedUpdate();
+}
+
+function toggleObstacle() {
+  obstacleEnabled = !obstacleEnabled;
+  $('obstacleToggle').classList.toggle('on', obstacleEnabled);
+  currentMotion = 'S';
+  updatePressedButtons();
+  sendRaw(obstacleEnabled ? 'O' : 'o');
+}
+
+function initVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return false;
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'zh-CN';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = event => {
+    const text = event.results[event.results.length - 1][0].transcript.replace(/[，。！？、\s]/g, '');
+
+    if (text.includes('停止') || text.includes('停车')) stopMotion();
+    else if (text.includes('前进') || text.includes('向前')) startMotion('F');
+    else if (text.includes('后退') || text.includes('倒车')) startMotion('B');
+    else if (text.includes('左转')) startMotion('L');
+    else if (text.includes('右转')) startMotion('R');
+    else if (text.includes('开启避障')) {
+      if (!obstacleEnabled) toggleObstacle();
+    }
+    else if (text.includes('关闭避障')) {
+      if (obstacleEnabled) toggleObstacle();
+    }
+    else setStatus('未识别到有效语音指令：' + text, 'warn');
+  };
+
+  recognition.onend = () => {
+    if (voiceEnabled) {
+      setTimeout(() => {
+        try { recognition.start(); } catch (_) {}
+      }, 300);
+    }
+  };
+
+  recognition.onerror = event => {
+    if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+      voiceEnabled = false;
+      $('voiceToggle').classList.remove('on');
+      setStatus('语音控制无法使用：' + event.error, 'error');
+    }
+  };
+
+  return true;
+}
+
+function toggleVoice() {
+  if (!recognition && !initVoice()) {
+    setStatus('当前浏览器不支持语音识别。', 'error');
+    return;
+  }
+
+  voiceEnabled = !voiceEnabled;
+  $('voiceToggle').classList.toggle('on', voiceEnabled);
+
+  if (voiceEnabled) {
+    setStatus('语音控制已开启：前进、后退、左转、右转、停止。', 'ok');
+    try { recognition.start(); } catch (_) {}
+  } else {
+    setStatus('语音控制已关闭');
+    try { recognition.abort(); } catch (_) {}
+  }
+}
+
+$('connectBtn').addEventListener('click', toggleConnection);
+$('clearBtn').addEventListener('click', clearChart);
+$('stopBtn').addEventListener('click', stopMotion);
+$('obstacleRow').addEventListener('click', toggleObstacle);
+$('voiceRow').addEventListener('click', toggleVoice);
+
+$('rpmSlider').addEventListener('input', event => {
+  $('rpmSetting').textContent = event.target.value;
+  scheduleLiveSpeedUpdate();
+});
+
+document.querySelectorAll('.preset').forEach(button => {
+  button.addEventListener('click', () => setRpm(button.dataset.rpm));
+});
+
+document.querySelectorAll('.dpad-btn').forEach(button => {
+  const motion = button.dataset.cmd;
+  button.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    button.setPointerCapture?.(event.pointerId);
+    startMotion(motion);
+  });
+  button.addEventListener('pointerup', event => {
+    event.preventDefault();
+    stopMotion();
+  });
+  button.addEventListener('pointercancel', stopMotion);
+});
+
+const keyMap = {
+  w:'F', W:'F', ArrowUp:'F',
+  s:'B', S:'B', ArrowDown:'B',
+  a:'L', A:'L', ArrowLeft:'L',
+  d:'R', D:'R', ArrowRight:'R'
+};
+const heldKeys = new Set();
+
+window.addEventListener('keydown', event => {
+  if (event.target.tagName === 'INPUT') return;
+  if (event.key === ' ') {
+    event.preventDefault();
+    stopMotion();
+    return;
+  }
+
+  const motion = keyMap[event.key];
+  if (motion && !heldKeys.has(event.key)) {
+    event.preventDefault();
+    heldKeys.add(event.key);
+    startMotion(motion);
+  }
+});
+
+window.addEventListener('keyup', event => {
+  if (keyMap[event.key]) {
+    heldKeys.delete(event.key);
+    stopMotion();
+  }
+});
+
+window.addEventListener('resize', resizeChart);
+window.addEventListener('beforeunload', () => {
+  try { recognition?.abort(); } catch (_) {}
+});
+
+updateConnectionUI();
+resizeChart();
+</script>
+</body>
+</html>

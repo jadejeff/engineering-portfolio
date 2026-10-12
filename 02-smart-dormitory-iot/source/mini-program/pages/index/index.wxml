@@ -1,0 +1,114 @@
+<view class="page-container index-page">
+  <!-- 品牌头部 -->
+  <view class="brand-header">
+    <view class="brand-icon">
+      <view class="icon-circle">
+        <image class="brand-logo" src="/picture/fengmian.png" mode="aspectFill"></image>
+      </view>
+    </view>
+    <text class="brand-title">智控寝室助手</text>
+    <text class="brand-desc">智能寝室 · 一键掌控</text>
+  </view>
+
+  <!-- 扫描区域 -->
+  <view class="scan-area">
+    <!-- 未扫描状态 -->
+    <view class="scan-hero" wx:if="{{!isScanning && devices.length === 0}}">
+      <view class="radar-container">
+        <view class="radar-ring ring-1"></view>
+        <view class="radar-ring ring-2"></view>
+        <view class="radar-ring ring-3"></view>
+        <view class="radar-core">
+          <text class="radar-icon">📡</text>
+        </view>
+      </view>
+      <text class="scan-hint">点击下方按钮开始搜索设备</text>
+      <button class="scan-start-btn btn-primary" bindtap="startScanDevices">
+        <text class="btn-label">开始扫描</text>
+      </button>
+    </view>
+
+    <!-- 扫描中状态 -->
+    <view class="scan-hero scanning" wx:if="{{isScanning}}">
+      <view class="radar-container active">
+        <view class="radar-ring ring-1"></view>
+        <view class="radar-ring ring-2"></view>
+        <view class="radar-ring ring-3"></view>
+        <view class="radar-core pulse">
+          <text class="radar-icon">🔍</text>
+        </view>
+      </view>
+      <text class="scan-hint">正在搜索附近的蓝牙设备...</text>
+      <view class="scan-progress">
+        <view class="progress-bar">
+          <view class="progress-fill"></view>
+        </view>
+      </view>
+      <button class="scan-cancel-btn" bindtap="stopScan">取消扫描</button>
+    </view>
+
+    <!-- 已连接 / 初始化中状态 -->
+    <view class="scan-hero connected" wx:if="{{isConnected}}">
+      <view class="radar-container">
+        <view class="radar-ring ring-1"></view>
+        <view class="radar-ring ring-2"></view>
+        <view class="radar-ring ring-3"></view>
+        <view class="radar-core pulse">
+          <text class="radar-icon">🔗</text>
+        </view>
+      </view>
+      <text class="scan-hint init-text">正在初始化设备连接...</text>
+      <view class="init-steps">
+        <text class="step {{serviceId ? 'done' : ''}}">获取服务</text>
+        <text class="step-arrow">→</text>
+        <text class="step {{writeCharId ? 'done' : ''}}">获取特征</text>
+        <text class="step-arrow">→</text>
+        <text class="step {{writeCharId && readCharId ? 'done' : ''}}">开启通知</text>
+      </view>
+      <button class="scan-cancel-btn" bindtap="cancelConnection">取消连接</button>
+    </view>
+  </view>
+
+  <!-- 设备列表 -->
+  <view class="device-section" wx:if="{{devices.length > 0}}">
+    <view class="section-header">
+      <text class="section-label">发现的设备</text>
+      <text class="section-count">{{devices.length}} 个</text>
+    </view>
+
+    <view class="device-list">
+      <view 
+        class="device-card {{item.connecting ? 'connecting' : ''}}" 
+        wx:for="{{devices}}" 
+        wx:key="deviceId" 
+        bindtap="connectDevice" 
+        data-deviceid="{{item.deviceId}}"
+      >
+        <view class="device-left">
+          <view class="device-avatar">
+            <text class="avatar-icon">📟</text>
+          </view>
+          <view class="device-info">
+            <text class="device-name">{{item.name || '未命名设备'}}</text>
+            <text class="device-id">{{item.deviceId}}</text>
+          </view>
+        </view>
+        <view class="device-right">
+          <!-- ✅ 动态信号强度条 -->
+          <view class="signal-bars">
+            <view class="bar bar-1 {{item._signalLevel >= 1 ? 'active' : ''}}"></view>
+            <view class="bar bar-2 {{item._signalLevel >= 2 ? 'active' : ''}}"></view>
+            <view class="bar bar-3 {{item._signalLevel >= 3 ? 'active' : ''}}"></view>
+            <view class="bar bar-4 {{item._signalLevel >= 4 ? 'active' : ''}}"></view>
+          </view>
+          <text class="device-connect">连接</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空设备提示 -->
+  <view class="empty-hint" wx:if="{{!isScanning && devices.length === 0 && !isConnected}}">
+    <text class="empty-text">点击"开始扫描"搜索附近的蓝牙设备</text>
+  </view>
+</view>

@@ -1,0 +1,4 @@
+﻿{
+  "appid": "YOUR_APPID",
+  "cloudfunctionRoot": "cloudfunctions/"
+}

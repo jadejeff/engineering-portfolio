@@ -1,0 +1,51 @@
+<view class="page-container select-role-page">
+  <!-- 页面标题 -->
+  <text class="page-title">选择身份</text>
+  <text class="page-subtitle">请选择您的使用模式</text>
+
+  <!-- 角色卡片 -->
+  <view class="role-list">
+    <!-- 学生模式 -->
+    <view class="role-card" bindtap="selectStudent">
+      <view class="role-badge student-badge">
+        <text class="badge-icon">🎓</text>
+      </view>
+      <view class="role-content">
+        <text class="role-name">学生模式</text>
+        <text class="role-desc">远程监控 · 场景切换 · 设备控制</text>
+        <view class="role-tags">
+          <text class="tag">📊 数据监控</text>
+          <text class="tag">🎯 场景模式</text>
+          <text class="tag">💡 设备控制</text>
+        </view>
+      </view>
+      <view class="role-arrow">
+        <text>→</text>
+      </view>
+    </view>
+
+    <!-- 宿管模式 -->
+    <view class="role-card dorm-card" bindtap="selectDorm">
+      <view class="role-badge dorm-badge">
+        <text class="badge-icon">🏠</text>
+      </view>
+      <view class="role-content">
+        <text class="role-name">宿管模式</text>
+        <text class="role-desc">实时查看寝室环境数据，仅监测不可控</text>
+        <view class="role-tags">
+          <text class="tag">🌡️ 温湿度</text>
+          <text class="tag">☀️ 光照强度</text>
+          <text class="tag">🚶 人体感应</text>
+        </view>
+      </view>
+      <view class="role-arrow">
+        <text>→</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="role-footer">
+    <text class="footer-text">可通过断开蓝牙重新选择身份</text>
+  </view>
+</view>

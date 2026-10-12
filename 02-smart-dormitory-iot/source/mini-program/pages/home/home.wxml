@@ -1,0 +1,83 @@
+<view class="page-container home-page">
+  <!-- 状态栏 -->
+  <view class="status-bar">
+    <view class="status-indicator">
+      <view class="status-dot"></view>
+      <text class="status-label">设备已连接</text>
+    </view>
+    <view class="device-badge" wx:if="{{connectedDeviceId}}">
+      <text class="badge-text">{{connectedDeviceId.substring(0, 12)}}...</text>
+    </view>
+  </view>
+
+  <!-- 欢迎区 -->
+  <view class="welcome-area">
+    <text class="welcome-title">智控寝室</text>
+    <text class="welcome-desc">一切尽在掌控之中</text>
+  </view>
+
+  <!-- 功能宫格 -->
+  <view class="feature-grid">
+
+    <!-- 设备总览 -->
+    <view class="feature-card" bindtap="goToMonitor">
+      <view class="feature-bg monitor-bg">
+        <view class="feature-icon-box">
+          <text class="feature-icon">📊</text>
+        </view>
+      </view>
+      <view class="feature-info">
+        <text class="feature-name">设备总览</text>
+        <text class="feature-desc">电能 · 温湿度 · 安防 · 设备状态</text>
+      </view>
+      <view class="feature-arrow">
+        <text>›</text>
+      </view>
+    </view>
+
+    <!-- 场景模式 -->
+    <view class="feature-card" bindtap="goToScene">
+      <view class="feature-bg scene-bg">
+        <view class="feature-icon-box">
+          <text class="feature-icon">🎯</text>
+        </view>
+      </view>
+      <view class="feature-info">
+        <text class="feature-name">场景模式</text>
+        <text class="feature-desc">一键切换寝室模式</text>
+      </view>
+      <view class="feature-arrow">
+        <text>›</text>
+      </view>
+    </view>
+
+    <!-- 设备控制 -->
+    <view class="feature-card" bindtap="goToControl">
+      <view class="feature-bg control-bg">
+        <view class="feature-icon-box">
+          <text class="feature-icon">💡</text>
+        </view>
+      </view>
+      <view class="feature-info">
+        <text class="feature-name">设备控制</text>
+        <text class="feature-desc">灯光 · 空调 · 插座 · 门锁</text>
+      </view>
+      <view class="feature-arrow">
+        <text>›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 断开连接 -->
+  <view class="disconnect-area">
+    <button class="disconnect-btn" bindtap="disconnect">
+      <text class="disconnect-icon">🔌</text>
+      <text class="disconnect-text">断开蓝牙连接</text>
+    </button>
+  </view>
+
+  <!-- 底部品牌 -->
+  <view class="footer-brand">
+    <text>智控寝室助手 · SmartDorm</text>
+  </view>
+</view>

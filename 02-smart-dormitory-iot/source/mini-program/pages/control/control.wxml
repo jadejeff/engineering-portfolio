@@ -1,0 +1,151 @@
+<view class="page-container control-page">
+  <!-- 页面标题 -->
+  <text class="page-title">设备控制</text>
+  <text class="page-subtitle">灯光 · 空调 · 插座 · 门锁</text>
+
+  <!-- ==================== 灯 ==================== -->
+  <view class="device-card glass-card {{lightStatus ? 'card-active' : ''}}">
+    <view class="device-row">
+      <view class="device-icon-box led-box">
+        <text class="device-icon">💡</text>
+      </view>
+      <view class="device-info-main">
+        <text class="device-name">寝室主灯</text>
+        <text class="device-desc">{{lightStatus ? '已开启' : '已关闭'}}</text>
+      </view>
+      <view class="toggle-switch {{lightStatus ? 'toggle-on' : 'toggle-off'}}" bindtap="toggleDevice" data-device="light" data-cmd-on="LED_ON" data-cmd-off="LED_OFF">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 空调 ==================== -->
+  <view class="device-card glass-card {{acStatus ? 'card-active' : ''}}">
+    <view class="device-row">
+      <view class="device-icon-box ac-box">
+        <text class="device-icon">❄️</text>
+      </view>
+      <view class="device-info-main">
+        <text class="device-name">空调</text>
+        <text class="device-desc">{{acStatus ? '运行中' : '已待机'}}</text>
+      </view>
+      <view class="toggle-switch {{acStatus ? 'toggle-on' : 'toggle-off'}}" bindtap="toggleDevice" data-device="ac" data-cmd-on="AC_ON" data-cmd-off="AC_OFF">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 插座 ==================== -->
+  <view class="device-card glass-card {{socketStatus ? 'card-active' : ''}}">
+    <view class="device-row">
+      <view class="device-icon-box socket-box">
+        <text class="device-icon">🔌</text>
+      </view>
+      <view class="device-info-main">
+        <text class="device-name">插座</text>
+        <text class="device-desc">{{socketStatus ? '已通电' : '已断电'}}</text>
+      </view>
+      <view class="toggle-switch {{socketStatus ? 'toggle-on' : 'toggle-off'}}" bindtap="toggleDevice" data-device="socket" data-cmd-on="SOCKET_ON" data-cmd-off="SOCKET_OFF">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 门锁 ==================== -->
+  <view class="device-card glass-card {{lockStatus ? 'card-active' : ''}}">
+    <view class="device-row">
+      <view class="device-icon-box lock-box">
+        <text class="device-icon">🔒</text>
+      </view>
+      <view class="device-info-main">
+        <text class="device-name">门锁</text>
+        <text class="device-desc">{{lockStatus ? '已锁定' : '已解锁'}}</text>
+      </view>
+      <view class="toggle-switch {{lockStatus ? 'toggle-on' : 'toggle-off'}}" bindtap="toggleDevice" data-device="lock" data-cmd-on="LOCK_ON" data-cmd-off="LOCK_OFF">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 一键全关 ==================== -->
+  <view class="all-off-area">
+    <view class="all-off-btn" bindtap="allOff">
+      <text class="all-off-icon">🔌</text>
+      <text class="all-off-text">一键全关</text>
+    </view>
+  </view>
+
+  <!-- ==================== 安全感知 ==================== -->
+  <view class="glass-card safety-section">
+    <view class="section-header">
+      <text class="section-icon">🛡</text>
+      <text class="section-title">安全感知</text>
+    </view>
+    <view class="safety-row">
+      <view class="safety-tag {{safetySmoke ? 'tag-danger' : 'tag-safe'}}">
+        <text class="tag-dot {{safetySmoke ? 'dot-blink' : ''}}"></text>
+        <text class="tag-label">烟雾</text>
+        <text class="tag-value">{{safetySmoke ? '报警!' : '正常'}}</text>
+      </view>
+      <view class="safety-tag {{safetyDoor ? 'tag-warn' : 'tag-safe'}}">
+        <text class="tag-dot {{safetyDoor ? '' : ''}}"></text>
+        <text class="tag-label">门磁</text>
+        <text class="tag-value">{{safetyDoor ? '已开' : '关闭'}}</text>
+      </view>
+      <view class="safety-tag {{safetyHuman ? 'tag-active' : 'tag-idle'}}">
+        <text class="tag-dot {{safetyHuman ? '' : ''}}"></text>
+        <text class="tag-label">人体</text>
+        <text class="tag-value">{{safetyHuman ? '有人' : '无人'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 告警状态 ==================== -->
+  <view class="glass-card alarm-section" wx:if="{{alarmLevel > 0}}">
+    <view class="alarm-row">
+      <text class="alarm-icon">⚠️</text>
+      <text class="alarm-msg {{alarmClass}}">{{alarmText}}</text>
+    </view>
+  </view>
+
+  <!-- ==================== 实时数据摘要 ==================== -->
+  <view class="glass-card summary-section" wx:if="{{receiveData}}">
+    <view class="section-header">
+      <text class="section-icon">📊</text>
+      <text class="section-title">实时数据</text>
+    </view>
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="sum-label">温度</text>
+        <text class="sum-value">{{deviceTemp}}℃</text>
+      </view>
+      <view class="summary-item">
+        <text class="sum-label">功率</text>
+        <text class="sum-value">{{devicePower}}W</text>
+      </view>
+      <view class="summary-item">
+        <text class="sum-label">回传</text>
+        <text class="sum-value sum-raw">{{receiveData.substring(0, 20)}}{{receiveData.length > 20 ? '...' : ''}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 自定义指令 ==================== -->
+  <view class="glass-card custom-section">
+    <text class="section-label">自定义指令</text>
+    <text class="section-hint">发送 ASCII 文本指令到设备（仅支持英文和标点）</text>
+    <view class="custom-input-row">
+      <input
+        class="custom-input"
+        placeholder="输入指令内容..."
+        placeholder-style="color:#CBD5E1"
+        bindinput="onInput"
+        value="{{sendText}}"
+        maxlength="50"
+      />
+      <button class="custom-send-btn" bindtap="sendCustom">
+        <text class="send-text">发送</text>
+      </button>
+    </view>
+  </view>
+</view>

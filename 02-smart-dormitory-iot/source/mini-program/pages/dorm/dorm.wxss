@@ -1,0 +1,552 @@
+/* ==================== 宿管数据看板页 — Glassmorphism ==================== */
+
+.dorm-page {
+  background: var(--gradient-page);
+  padding-bottom: 48rpx;
+}
+
+/* ==================== 毛玻璃卡片 ==================== */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ==================== 告警条 ==================== */
+.alert-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 32rpx;
+  padding-top: calc(20rpx + env(safe-area-inset-top));
+  background: #FEF2F2;
+  border-bottom: 2rpx solid #FECACA;
+  transform: translateY(-120%);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.alert-bar.alert-show { transform: translateY(0); }
+
+.alert-bar.alert-human, .alert-bar.alert-smoke {
+  background: #DC2626;
+  border-bottom-color: #B91C1C;
+}
+
+.alert-bar.alert-human .alert-msg,
+.alert-bar.alert-smoke .alert-msg,
+.alert-bar.alert-human .alert-close,
+.alert-bar.alert-smoke .alert-close { color: #FFFFFF; }
+
+.alert-msg {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #DC2626;
+  flex: 1;
+  animation: alertBlink 1.5s ease-in-out 3;
+}
+
+.alert-close {
+  font-size: 32rpx;
+  color: #DC2626;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+}
+
+@keyframes alertBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ==================== 页面头部 ==================== */
+.dorm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8rpx;
+}
+
+.header-left { flex: 1; }
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-success-light);
+  font-weight: 500;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 10rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+  margin-top: 4rpx;
+}
+
+.live-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 8rpx rgba(16, 185, 129, 0.5);
+  animation: liveBlink 2s ease-in-out infinite;
+}
+
+.live-dot.offline {
+  background: var(--text-hint);
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes liveBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-text {
+  font-size: 22rpx;
+  color: var(--color-success-light);
+  font-weight: 600;
+}
+
+.update-time {
+  display: block;
+  font-size: 24rpx;
+  color: var(--text-hint);
+  margin-bottom: 24rpx;
+}
+
+/* ==================== 告警提示 ==================== */
+.alert-hint {
+  background: rgba(79, 70, 229, 0.06);
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  margin-bottom: 28rpx;
+  border-left: 6rpx solid #4F46E5;
+}
+
+.alert-hint-text {
+  font-size: 24rpx;
+  color: #4338CA;
+  line-height: 1.5;
+}
+
+/* ==================== 今日统计卡片 ==================== */
+.stats-section {
+  margin-bottom: 28rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+}
+
+.stats-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 18rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+
+.stat-item {
+  background: var(--color-primary-bg);
+  border-radius: 18rpx;
+  padding: 20rpx 12rpx;
+  text-align: center;
+  border: 1rpx solid var(--color-primary-border);
+}
+
+.stat-value {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6rpx;
+}
+
+.stat-value.hot  { color: var(--color-danger); }
+.stat-value.cold { color: var(--color-info); }
+
+.stat-label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+/* ==================== 传感器宫格 ==================== */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-bottom: 28rpx;
+}
+
+.sensor-card {
+  border-radius: 24rpx;
+  padding: 28rpx 24rpx 24rpx;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.sensor-card.card-loading { opacity: 0.5; }
+
+.sensor-card.card-alarm {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 24rpx rgba(239, 68, 68, 0.2) !important;
+  animation: cardShake 0.6s ease-in-out;
+}
+
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 50%, 90% { transform: translateX(-4rpx); }
+  30%, 70% { transform: translateX(4rpx); }
+}
+
+.sensor-icon-box {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18rpx;
+}
+
+.temp-box   { background: linear-gradient(135deg, #FEE2E2, #FECACA); }
+.power-box  { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+.safe-box   { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.danger-box { background: linear-gradient(135deg, #FEE2E2, #FECACA); }
+.warn-box   { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+.human-yes-bg { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.human-no-bg  { background: linear-gradient(135deg, #F1F5F9, #E2E8F0); }
+
+.sensor-icon { font-size: 32rpx; }
+
+.sensor-label {
+  display: block;
+  font-size: 24rpx;
+  color: var(--text-hint);
+  margin-bottom: 8rpx;
+}
+
+.sensor-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.sensor-value {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #1E293B;
+  line-height: 1;
+}
+
+.sensor-value.dim { color: #CBD5E1; }
+
+.sensor-unit {
+  font-size: 24rpx;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.sensor-status {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 800;
+  margin-bottom: 12rpx;
+}
+
+.status-danger  { color: #EF4444; }
+.status-safe    { color: #10B981; }
+.status-warn    { color: #F59E0B; }
+.status-active  { color: #10B981; }
+.status-idle    { color: #94A3B8; }
+.sensor-status.dim { color: #CBD5E1; }
+
+/* ==================== 进度条 ==================== */
+.sensor-bar-wrap { width: 100%; }
+
+.sensor-bar {
+  width: 100%;
+  height: 8rpx;
+  border-radius: 4rpx;
+  background: rgba(79, 70, 229, 0.06);
+  overflow: hidden;
+  margin-bottom: 8rpx;
+}
+
+.temp-bar .bar-fill  { background: linear-gradient(90deg, #F59E0B, #EF4444); }
+.power-bar .bar-fill { background: linear-gradient(90deg, #FCD34D, #F59E0B); }
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill.loading-fill {
+  background: linear-gradient(90deg, #E2E8F0, #CBD5E1);
+  width: 40% !important;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.bar-marks {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bar-marks text {
+  font-size: 20rpx;
+  color: #CBD5E1;
+}
+
+/* ==================== 烟雾/人体波纹 ==================== */
+.smoke-ripple {
+  position: absolute;
+  right: 20rpx;
+  bottom: 20rpx;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.human-ripple {
+  position: absolute;
+  right: 20rpx;
+  bottom: 20rpx;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.ripple-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16rpx;
+  height: 16rpx;
+  margin-left: -8rpx;
+  margin-top: -8rpx;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.4);
+  transform: scale(1);
+}
+
+.ripple-ring.ripple-delay { animation: rippleOut 2s ease-out 1s infinite; }
+.ripple-active .ripple-ring:first-child { animation: rippleOut 2s ease-out infinite; }
+
+@keyframes rippleOut {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* ==================== 舒适度摘要 ==================== */
+.summary-section {
+  margin-bottom: 28rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+}
+
+.summary-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 14rpx;
+}
+
+.summary-card-inner {
+  display: flex;
+  align-items: center;
+}
+
+.summary-item { flex: 1; text-align: center; }
+
+.summary-label {
+  display: block;
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-bottom: 8rpx;
+}
+
+.summary-value {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #059669;
+}
+
+.summary-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: rgba(79, 70, 229, 0.1);
+}
+
+/* ==================== 事件日志 ==================== */
+.event-log-section { margin-bottom: 28rpx; }
+
+.event-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+}
+
+.event-log-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.event-log-icon { font-size: 28rpx; }
+
+.event-log-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.event-log-badge {
+  background: #FEF2F2;
+  color: #EF4444;
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+}
+
+.event-log-arrow {
+  font-size: 24rpx;
+  color: #CBD5E1;
+  transition: transform 0.25s ease;
+}
+
+.event-log-arrow.arrow-up { transform: rotate(90deg); }
+
+.event-log-list {
+  margin-top: 12rpx;
+  border-radius: 24rpx;
+  padding: 20rpx 28rpx;
+  max-height: 480rpx;
+  overflow-y: auto;
+}
+
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid rgba(79, 70, 229, 0.05);
+}
+
+.event-item:last-child { border-bottom: none; }
+
+.event-icon {
+  font-size: 28rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FEF2F2;
+  flex-shrink: 0;
+}
+
+.event-body { flex: 1; }
+
+.event-time {
+  display: block;
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-bottom: 4rpx;
+}
+
+.event-msg {
+  display: block;
+  font-size: 26rpx;
+  color: #1E293B;
+  line-height: 1.4;
+}
+
+.event-log-empty {
+  text-align: center;
+  padding: 32rpx 0;
+}
+
+.event-log-empty text {
+  font-size: 24rpx;
+  color: #CBD5E1;
+}
+
+/* ==================== 断开连接 ==================== */
+.disconnect-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24rpx;
+}
+
+.disconnect-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 24rpx 48rpx;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 48rpx;
+  border: 1rpx solid rgba(79, 70, 229, 0.08);
+}
+
+.disconnect-btn:active {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+.disconnect-icon { font-size: 28rpx; }
+
+.disconnect-text {
+  font-size: 28rpx;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* 底部 */
+.dorm-footer {
+  text-align: center;
+  padding: 24rpx;
+}
+
+.dorm-footer text {
+  font-size: 22rpx;
+  color: #CBD5E1;
+}

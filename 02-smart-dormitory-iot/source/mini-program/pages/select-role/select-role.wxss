@@ -1,0 +1,159 @@
+/* ==================== 角色选择页 ==================== */
+
+.select-role-page {
+  background: linear-gradient(180deg, #EEF2FF 0%, #F8FAFC 15%, #FFFFFF 100%);
+}
+
+.page-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 8rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #94A3B8;
+  margin-bottom: 40rpx;
+}
+
+/* 角色卡片列表 */
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-bottom: 48rpx;
+}
+
+.role-card {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 32rpx 28rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.04);
+  border: 2rpx solid #F1F5F9;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 选中动效背景 */
+.role-card::after {
+  content: '';
+  position: absolute;
+  right: -60rpx;
+  top: -60rpx;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.role-card:active::after {
+  transform: scale(1);
+}
+
+.role-card:active {
+  transform: scale(0.97);
+  border-color: #4F46E5;
+  box-shadow: 0 8rpx 32rpx rgba(79,70,229,0.12);
+}
+
+/* 图标徽章 */
+.role-badge {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 28rpx;
+}
+
+.student-badge {
+  background: linear-gradient(135deg, #DDD6FE, #C4B5FD);
+}
+
+.dorm-badge {
+  background: linear-gradient(135deg, #A7F3D0, #6EE7B7);
+}
+
+.badge-icon {
+  font-size: 44rpx;
+}
+
+/* 内容区 */
+.role-content {
+  flex: 1;
+}
+
+.role-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 8rpx;
+}
+
+.role-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
+}
+
+/* 功能标签 */
+.role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag {
+  font-size: 22rpx;
+  color: #4F46E5;
+  background: #EEF2FF;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-weight: 500;
+}
+
+.dorm-card .tag {
+  color: #059669;
+  background: #ECFDF5;
+}
+
+/* 箭头 */
+.role-arrow {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.role-arrow text {
+  font-size: 32rpx;
+  color: #CBD5E1;
+  font-weight: 500;
+}
+
+/* 底部 */
+.role-footer {
+  text-align: center;
+  padding: 32rpx 0;
+}
+
+.footer-text {
+  font-size: 22rpx;
+  color: #CBD5E1;
+}

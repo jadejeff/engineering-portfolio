@@ -1,0 +1,104 @@
+#include <ESP8266WiFi.h>
+#include <SoftwareSerial.h>
+
+// ==================== 软件串口配置 ====================
+SoftwareSerial wbaSerial(4, 5);  // RX=GPIO4, TX=GPIO5  接 WBA USART3
+
+// ==================== WiFi 热点配置 ====================
+const char *ap_ssid     = "ESP-Slave-666";
+const char *ap_password = "REPLACE_ME";
+const uint16_t tcpPort  = 8266;
+
+// ==================== TCP 全局变量 ====================
+WiFiServer server(tcpPort);
+WiFiClient client;
+bool clientConnected = false;
+
+// ==================== 初始化 ====================
+void setup() {
+  Serial.begin(115200);
+  wbaSerial.begin(115200);
+
+  Serial.println("====================================");
+  Serial.println("   8266(2) AP + TCP + WBA Serial");
+  Serial.println("====================================");
+
+  // 启动 WiFi 热点
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ap_ssid, ap_password);
+
+  Serial.println("[AP] Started: " + String(ap_ssid));
+  Serial.print("[AP] IP: ");
+  Serial.println(WiFi.softAPIP());
+
+  // 启动 TCP 服务器
+  server.begin();
+  server.setNoDelay(true);  // 禁用 Nagle，减少 TCP 延迟
+  Serial.println("[TCP] Waiting for 8266(1) connection...\n");
+}
+
+// ==================== 主循环 ====================
+void loop() {
+  static unsigned long lastYield = 0;
+
+  // ── 路径1：TCP → WBA 串口（静默转发）──
+  if (clientConnected && client.connected()) {
+    while (client.available()) {
+      uint8_t buf[128];
+      int n = client.readBytes(buf, sizeof(buf));
+      if (n > 0) {
+        wbaSerial.write(buf, n);
+      }
+      yield();  // 给 WiFi 腾时间
+      if (millis() - lastYield > 5) break;  // 每次最多连续读 5ms
+    }
+  }
+
+  // ── 路径2：WBA 串口 → 打印 + 转发 TCP ──
+  if (wbaSerial.available()) {
+    // ★ 一次尽可能多读，减少 SoftwareSerial 缓冲溢出
+    int len = wbaSerial.available();
+    if (len > 128) len = 128;
+    uint8_t buf[128];
+    int n = wbaSerial.readBytes(buf, len);
+
+    if (n > 0) {
+      // 打印 WBA 发来的指令
+      Serial.print("[WBA CMD] HEX: ");
+      for (int i = 0; i < n; i++) {
+        if (buf[i] < 0x10) Serial.print("0");
+        Serial.print(buf[i], HEX);
+        Serial.print(" ");
+      }
+      Serial.println();
+
+      // 转发给 TCP
+      if (clientConnected && client.connected()) {
+        client.write(buf, n);
+      }
+    }
+  }
+
+  // ── TCP 客户端管理 ──
+  if (!clientConnected) {
+    client = server.available();
+    if (client) {
+      client.setNoDelay(true);
+      clientConnected = true;
+      Serial.println("[TCP] 8266(1) connected!");
+    }
+  }
+
+  if (clientConnected) {
+    if (!client.connected()) {
+      client.stop();
+      clientConnected = false;
+      Serial.println("[TCP] 8266(1) disconnected, waiting...\n");
+    }
+  }
+
+  // 固定 5ms 循环间隔，让 WiFi 栈有喘息但不阻塞数据通路
+  // （如果 WiFi RX 很忙，会被 yield() 自然延迟）
+  delay(5);
+  lastYield = millis();
+}

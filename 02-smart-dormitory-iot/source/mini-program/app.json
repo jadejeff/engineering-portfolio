@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/select-role/select-role",
+    "pages/dorm/dorm",
+    "pages/monitor/monitor",
+    "pages/scene/scene",
+    "pages/control/control",
+    "pages/home/home"
+  ],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "智控寝室助手",
+    "navigationBarBackgroundColor": "#4F46E5"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "cloud": true
+}

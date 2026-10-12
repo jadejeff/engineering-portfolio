@@ -1,0 +1,235 @@
+<view class="page-container monitor-page">
+  <!-- ==================== AI 异常告警横幅 ==================== -->
+  <view class="ai-alert-banner {{showAIBanner ? 'banner-show' : ''}} {{aiBannerClosing ? 'banner-hide' : ''}}" wx:if="{{showAIBanner || aiBannerClosing}}" bindtap="dismissAIBanner">
+    <view class="banner-icon">⚠️</view>
+    <view class="banner-content">
+      <text class="banner-title">AI 异常检测告警</text>
+      <text class="banner-desc">设备运行状态异常！点击关闭</text>
+    </view>
+    <view class="banner-close">✕</view>
+  </view>
+
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <view class="header-left">
+      <text class="page-title">设备总览</text>
+    </view>
+    <view class="header-right">
+      <view class="live-badge">
+        <view class="live-dot {{isOffline ? 'offline' : (dataLoaded ? '' : 'offline')}}"></view>
+        <text class="live-text">{{isOffline ? '离线·快照' : (dataLoaded ? '实时' : '等待数据')}}</text>
+      </view>
+      <view class="refresh-btn" bindtap="refreshStatus">
+        <text class="refresh-icon {{isRefreshing ? 'spinning' : ''}}">🔄</text>
+      </view>
+    </view>
+  </view>
+  <text class="page-subtitle">更新于 {{lastUpdate || '--:--:--'}}</text>
+
+  <!-- ==================== 电能计量组 ==================== -->
+  <view class="card-group glass-card">
+    <view class="group-header">
+      <text class="group-icon">⚡</text>
+      <text class="group-title">电能计量</text>
+    </view>
+
+    <!-- 功率圆环仪表盘 -->
+    <view class="power-gauge-wrap">
+      <view class="power-gauge">
+        <view class="gauge-outer">
+          <view class="gauge-ring">
+            <view class="gauge-fill-left {{dataLoaded ? '' : 'no-data'}}">
+              <view class="gauge-half-cover" wx:if="{{powerAngle > 180}}" style="transform: rotate({{powerAngle - 180}}deg)"></view>
+            </view>
+            <view class="gauge-fill-right {{dataLoaded ? '' : 'no-data'}}" style="transform: rotate({{powerAngle > 180 ? 180 : powerAngle}}deg)">
+              <view class="gauge-half-cover" wx:if="{{powerAngle <= 180}}"></view>
+            </view>
+          </view>
+          <view class="gauge-center">
+            <text class="gauge-value {{dataLoaded ? '' : 'dim'}}">{{power}}</text>
+            <text class="gauge-unit">W</text>
+          </view>
+        </view>
+        <text class="gauge-label">实时功率</text>
+      </view>
+    </view>
+
+    <!-- 电能数值卡片 -->
+    <view class="energy-grid">
+      <view class="energy-card {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="energy-label">电压</text>
+        <view class="energy-value-row">
+          <text class="energy-value {{dataLoaded ? '' : 'dim'}}">{{voltage}}</text>
+          <text class="energy-unit">V</text>
+        </view>
+      </view>
+      <view class="energy-card {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="energy-label">电流</text>
+        <view class="energy-value-row">
+          <text class="energy-value {{dataLoaded ? '' : 'dim'}}">{{current}}</text>
+          <text class="energy-unit">A</text>
+        </view>
+      </view>
+      <view class="energy-card {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="energy-label">累计电量</text>
+        <view class="energy-value-row">
+          <text class="energy-value {{dataLoaded ? '' : 'dim'}}">{{energy}}</text>
+          <text class="energy-unit">kWh</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 环境与安防组 ==================== -->
+  <view class="card-group glass-card">
+    <view class="group-header">
+      <text class="group-icon">🛡</text>
+      <text class="group-title">环境与安防</text>
+    </view>
+
+    <view class="safety-grid">
+      <!-- 温度 -->
+      <view class="safety-card {{dataLoaded ? '' : 'card-loading'}}">
+        <view class="safety-icon-box temp-bg">
+          <text class="safety-icon">🌡</text>
+        </view>
+        <view class="safety-info">
+          <text class="safety-label">温度</text>
+          <view class="safety-value-row">
+            <text class="safety-value {{dataLoaded ? '' : 'dim'}}">{{temp}}</text>
+            <text class="safety-unit">℃</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 烟雾 -->
+      <view class="safety-card {{dataLoaded ? '' : 'card-loading'}}">
+        <view class="safety-icon-box {{smoke ? 'danger-bg' : 'safe-bg'}}">
+          <text class="safety-icon">🔥</text>
+        </view>
+        <view class="safety-info">
+          <text class="safety-label">烟雾</text>
+          <view class="status-indicator {{smoke ? 'status-alarm' : 'status-safe'}}">
+            <view class="status-dot {{smoke ? 'dot-blink' : 'dot-pulse'}}"></view>
+            <text class="status-text">{{smoke ? '报警!' : '正常'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 门磁 -->
+      <view class="safety-card {{dataLoaded ? '' : 'card-loading'}}">
+        <view class="safety-icon-box {{door ? 'warn-bg' : 'safe-bg'}}">
+          <text class="safety-icon">🚪</text>
+        </view>
+        <view class="safety-info">
+          <text class="safety-label">门磁</text>
+          <view class="status-indicator {{door ? 'status-warn' : 'status-safe'}}">
+            <view class="status-dot {{door ? '' : 'dot-pulse'}}"></view>
+            <text class="status-text">{{door ? '已开' : '关闭'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 人体感应 -->
+      <view class="safety-card {{dataLoaded ? '' : 'card-loading'}}">
+        <view class="safety-icon-box {{human ? 'warn-bg' : 'safe-bg'}}">
+          <text class="safety-icon">{{human ? '🚶' : '😴'}}</text>
+        </view>
+        <view class="safety-info">
+          <text class="safety-label">人体感应</text>
+          <view class="status-indicator {{human ? 'status-active' : 'status-idle'}}">
+            <view class="status-dot {{human ? 'dot-pulse' : ''}}"></view>
+            <text class="status-text">{{human ? '有人' : '无人'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 设备状态组 ==================== -->
+  <view class="card-group glass-card">
+    <view class="group-header">
+      <text class="group-icon">💡</text>
+      <text class="group-title">设备状态</text>
+    </view>
+
+    <view class="device-grid">
+      <!-- 灯 -->
+      <view class="device-item {{light ? 'device-on' : 'device-off'}} {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="device-icon-text">💡</text>
+        <text class="device-name">灯</text>
+        <view class="device-badge {{light ? 'badge-on' : 'badge-off'}}">
+          <text>{{light ? 'ON' : 'OFF'}}</text>
+        </view>
+      </view>
+      <!-- 插座 -->
+      <view class="device-item {{socket ? 'device-on' : 'device-off'}} {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="device-icon-text">🔌</text>
+        <text class="device-name">插座</text>
+        <view class="device-badge {{socket ? 'badge-on' : 'badge-off'}}">
+          <text>{{socket ? 'ON' : 'OFF'}}</text>
+        </view>
+      </view>
+      <!-- 空调 -->
+      <view class="device-item {{ac ? 'device-on' : 'device-off'}} {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="device-icon-text">❄️</text>
+        <text class="device-name">空调</text>
+        <view class="device-badge {{ac ? 'badge-on' : 'badge-off'}}">
+          <text>{{ac ? 'ON' : 'OFF'}}</text>
+        </view>
+      </view>
+      <!-- 锁 -->
+      <view class="device-item {{lock ? 'device-on' : 'device-off'}} {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="device-icon-text">🔒</text>
+        <text class="device-name">门锁</text>
+        <view class="device-badge {{lock ? 'badge-on' : 'badge-off'}}">
+          <text>{{lock ? '锁定' : '解锁'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 系统信息组 ==================== -->
+  <view class="card-group glass-card">
+    <view class="group-header">
+      <text class="group-icon">⚙</text>
+      <text class="group-title">系统信息</text>
+    </view>
+
+    <view class="sys-info-row">
+      <view class="sys-info-item {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="sys-label">运行模式</text>
+        <text class="sys-value">{{modeText}}</text>
+      </view>
+      <view class="sys-divider"></view>
+      <view class="sys-info-item {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="sys-label">告警级别</text>
+        <text class="sys-value {{alarmClass}}">{{alarmText}}</text>
+      </view>
+      <view class="sys-divider"></view>
+      <view class="sys-info-item {{dataLoaded ? '' : 'card-loading'}}">
+        <text class="sys-label">传感器健康</text>
+        <text class="sys-value {{health ? 'sys-ok' : 'sys-bad'}}">{{healthText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== AI 告警历史记录 ==================== -->
+  <view class="card-group glass-card" wx:if="{{aiAlertHistory.length > 0}}">
+    <view class="group-header">
+      <text class="group-icon">🤖</text>
+      <text class="group-title">AI 告警记录</text>
+      <text class="alert-count-badge">{{aiAlertHistory.length}}</text>
+    </view>
+
+    <view class="alert-history-list">
+      <view class="alert-history-item" wx:for="{{aiAlertHistory}}" wx:key="timestamp">
+        <view class="alert-item-dot"></view>
+        <view class="alert-item-content">
+          <text class="alert-item-time">[{{item.time}}]</text>
+          <text class="alert-item-msg">AI 异常告警</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

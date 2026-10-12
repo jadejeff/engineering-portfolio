@@ -1,0 +1,119 @@
+<view class="page-container scene-page">
+  <!-- 页面标题 -->
+  <text class="page-title">场景模式</text>
+  <text class="page-subtitle">一键切换寝室环境</text>
+
+  <!-- 设备实时模式（从 JSON m 字段同步） -->
+  <view class="glass-card device-mode-bar" wx:if="{{dataSynced}}">
+    <view class="mode-bar-row">
+      <text class="mode-bar-icon">📡</text>
+      <text class="mode-bar-label">设备当前模式：</text>
+      <text class="mode-bar-value">{{deviceMode}}</text>
+    </view>
+  </view>
+
+  <!-- ==================== 场景模式 ==================== -->
+  <text class="section-title">📋 场景模式</text>
+
+  <view class="mode-list">
+    <!-- 睡眠模式 -->
+    <view class="mode-card glass-card {{currentScene === 'sleep' ? 'mode-active sleep-active' : ''}}" bindtap="sleepMode">
+      <view class="mode-icon-box sleep-box">
+        <text class="mode-icon">😴</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">睡眠模式</text>
+        <text class="mode-desc">关闭灯光，降低风扇转速</text>
+      </view>
+      <text class="mode-cmd">→ B0 01</text>
+      <view class="mode-indicator" wx:if="{{currentScene === 'sleep'}}">
+        <text>✓</text>
+      </view>
+    </view>
+
+    <!-- 学习模式 -->
+    <view class="mode-card glass-card {{currentScene === 'study' ? 'mode-active study-active' : ''}}" bindtap="studyMode">
+      <view class="mode-icon-box study-box">
+        <text class="mode-icon">📖</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">学习模式</text>
+        <text class="mode-desc">开启灯光，保持安静环境</text>
+      </view>
+      <text class="mode-cmd">→ B0 02</text>
+      <view class="mode-indicator" wx:if="{{currentScene === 'study'}}">
+        <text>✓</text>
+      </view>
+    </view>
+
+    <!-- 休息模式 -->
+    <view class="mode-card glass-card {{currentScene === 'rest' ? 'mode-active rest-active' : ''}}" bindtap="restMode">
+      <view class="mode-icon-box rest-box">
+        <text class="mode-icon">🌙</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">休息模式</text>
+        <text class="mode-desc">关闭所有设备，安心小憩</text>
+      </view>
+      <text class="mode-cmd">→ B0 03</text>
+      <view class="mode-indicator" wx:if="{{currentScene === 'rest'}}">
+        <text>✓</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ==================== 系统模式 ==================== -->
+  <text class="section-title">⚙️ 系统模式</text>
+
+  <view class="mode-list">
+    <!-- 普通模式 -->
+    <view class="mode-card glass-card {{currentSysMode === 'normal' ? 'mode-active normal-active' : ''}}" bindtap="normalMode">
+      <view class="mode-icon-box normal-box">
+        <text class="mode-icon">⚪</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">普通模式</text>
+        <text class="mode-desc">用户控制优先，系统监测提醒</text>
+      </view>
+      <text class="mode-cmd">→ B1 00</text>
+      <view class="mode-indicator" wx:if="{{currentSysMode === 'normal'}}">
+        <text>✓</text>
+      </view>
+    </view>
+
+    <!-- 节能模式 -->
+    <view class="mode-card glass-card {{currentSysMode === 'eco' ? 'mode-active eco-active' : ''}}" bindtap="ecoMode">
+      <view class="mode-icon-box eco-box">
+        <text class="mode-icon">🔵</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">节能模式</text>
+        <text class="mode-desc">减少无效能耗，无人自动关灯</text>
+      </view>
+      <text class="mode-cmd">→ B1 01</text>
+      <view class="mode-indicator" wx:if="{{currentSysMode === 'eco'}}">
+        <text>✓</text>
+      </view>
+    </view>
+
+    <!-- 安全模式 -->
+    <view class="mode-card glass-card {{currentSysMode === 'safe' ? 'mode-active safe-active' : ''}}" bindtap="safeMode">
+      <view class="mode-icon-box safe-box">
+        <text class="mode-icon">🔴</text>
+      </view>
+      <view class="mode-content">
+        <text class="mode-name">安全模式</text>
+        <text class="mode-desc">安全保护优先，必要时强制断电</text>
+      </view>
+      <text class="mode-cmd">→ B1 02</text>
+      <view class="mode-indicator" wx:if="{{currentSysMode === 'safe'}}">
+        <text>✓</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="scene-footer">
+    <text class="footer-text">提示：切换模式可能需要几秒钟生效 · 自动同步设备状态</text>
+  </view>
+</view>

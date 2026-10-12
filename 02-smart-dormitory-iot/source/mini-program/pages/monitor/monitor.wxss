@@ -1,0 +1,624 @@
+/* ==================== 设备总览页 — Glassmorphism 设计 ==================== */
+
+.monitor-page {
+  background: var(--gradient-page);
+  padding-bottom: 48rpx;
+}
+
+/* ==================== 页面头部 ==================== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.header-left { flex: 1; }
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* 实时标签 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(16, 185, 129, 0.2);
+}
+
+.live-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 8rpx rgba(16, 185, 129, 0.6);
+  animation: liveBlink 2s ease-in-out infinite;
+}
+
+.live-dot.offline {
+  background: var(--color-warning);
+  box-shadow: 0 0 8rpx rgba(245, 158, 11, 0.4);
+  animation: none;
+}
+
+@keyframes liveBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-text {
+  font-size: 22rpx;
+  color: var(--color-success-light);
+  font-weight: 700;
+}
+
+/* 刷新按钮 */
+.refresh-btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1rpx solid rgba(79, 70, 229, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.refresh-btn:active {
+  transform: rotate(180deg) scale(0.92);
+  background: #EEF2FF;
+}
+
+.refresh-icon {
+  font-size: 32rpx;
+}
+
+.refresh-icon.spinning {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: var(--text-hint);
+  margin-bottom: 32rpx;
+}
+
+/* ==================== 毛玻璃卡片组 ==================== */
+.card-group {
+  border-radius: var(--radius-card);
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
+}
+
+/* 分组标题 */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 22rpx;
+}
+
+.group-icon {
+  font-size: 32rpx;
+}
+
+.group-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ==================== 功率圆环仪表盘 ==================== */
+.power-gauge-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28rpx;
+}
+
+.power-gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gauge-outer {
+  position: relative;
+  width: 220rpx;
+  height: 220rpx;
+}
+
+.gauge-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    var(--color-primary) 0deg,
+    #7C3AED 90deg,
+    #8B5CF6 180deg,
+    #A78BFA 270deg,
+    #C4B5FD 360deg
+  );
+  mask: radial-gradient(
+    transparent 55%,
+    #000 56%
+  );
+  -webkit-mask: radial-gradient(
+    transparent 55%,
+    #000 56%
+  );
+  opacity: 0.15;
+  transition: opacity 0.4s ease;
+}
+
+.gauge-ring.no-data {
+  opacity: 0.05;
+}
+
+.gauge-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gauge-value {
+  font-size: 64rpx;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.gauge-value.dim {
+  color: var(--text-muted);
+}
+
+.gauge-unit {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  font-weight: 500;
+  margin-top: 4rpx;
+}
+
+.gauge-label {
+  font-size: 24rpx;
+  color: var(--text-sub);
+  margin-top: 12rpx;
+  font-weight: 500;
+}
+
+/* ==================== 电能数值卡片 ==================== */
+.energy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+
+.energy-card {
+  background: var(--color-primary-bg);
+  border-radius: var(--radius-sm);
+  padding: 20rpx 14rpx;
+  text-align: center;
+  border: 1rpx solid var(--color-primary-border);
+}
+
+.energy-label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.energy-value-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4rpx;
+}
+
+.energy-value {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.energy-value.dim {
+  color: var(--text-muted);
+}
+
+.energy-unit {
+  font-size: 20rpx;
+  color: var(--text-hint);
+  font-weight: 400;
+}
+
+/* ==================== 安防感知网格 ==================== */
+.safety-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+}
+
+.safety-card {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20rpx;
+  padding: 22rpx;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  border: 1rpx solid rgba(79, 70, 229, 0.06);
+}
+
+.safety-icon-box {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.temp-bg   { background: linear-gradient(135deg, #FEE2E2, #FECACA); }
+.safe-bg   { background: linear-gradient(135deg, #D1FAE5, #A7F3D0); }
+.danger-bg { background: linear-gradient(135deg, #FEE2E2, #FECACA); }
+.warn-bg   { background: linear-gradient(135deg, #FEF3C7, #FDE68A); }
+
+.safety-icon {
+  font-size: 32rpx;
+}
+
+.safety-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.safety-label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-bottom: 6rpx;
+}
+
+.safety-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.safety-value {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.safety-value.dim {
+  color: var(--text-muted);
+}
+
+.safety-unit {
+  font-size: 20rpx;
+  color: var(--text-hint);
+  font-weight: 400;
+}
+
+/* 状态指示器 */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.status-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: var(--text-hint);
+}
+
+.status-dot.dot-pulse {
+  background: var(--color-success);
+  box-shadow: 0 0 10rpx rgba(16, 185, 129, 0.6);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.status-dot.dot-blink {
+  background: var(--color-danger);
+  box-shadow: 0 0 12rpx rgba(239, 68, 68, 0.7);
+  animation: dotBlink 0.6s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.5; }
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+.status-text {
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.status-safe  .status-text { color: var(--color-success); }
+.status-alarm .status-text { color: var(--color-danger); }
+.status-warn  .status-text { color: var(--color-warning); }
+.status-active .status-text { color: var(--color-success); }
+.status-idle   .status-text { color: var(--text-hint); }
+
+/* ==================== 设备状态网格 ==================== */
+.device-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+
+.device-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20rpx;
+  padding: 20rpx 10rpx;
+  border: 1rpx solid rgba(79, 70, 229, 0.06);
+  transition: all 0.3s ease;
+}
+
+.device-item.device-on {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-border);
+  box-shadow: 0 0 16rpx rgba(79, 70, 229, 0.08);
+}
+
+.device-icon-text {
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
+}
+
+.device-name {
+  font-size: 20rpx;
+  color: var(--text-hint);
+  margin-bottom: 10rpx;
+  font-weight: 500;
+}
+
+.device-badge {
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.badge-on {
+  background: var(--btn-gradient);
+  color: var(--text-white);
+  box-shadow: 0 4rpx 12rpx rgba(79, 70, 229, 0.25);
+}
+
+.badge-off {
+  background: #E2E8F0;
+  color: var(--text-hint);
+}
+
+/* ==================== 系统信息行 ==================== */
+.sys-info-row {
+  display: flex;
+  align-items: center;
+}
+
+.sys-info-item {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 8rpx;
+}
+
+.sys-label {
+  display: block;
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-bottom: 8rpx;
+  font-weight: 500;
+}
+
+.sys-value {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.sys-value.sys-ok  { color: var(--color-success); }
+.sys-value.sys-bad { color: var(--color-danger); }
+.sys-value.alarm-ok     { color: var(--color-success); }
+.sys-value.alarm-info   { color: var(--color-warning); }
+.sys-value.alarm-warn   { color: #F97316; }
+.sys-value.alarm-urgent { color: var(--color-danger); }
+
+.sys-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: rgba(79, 70, 229, 0.1);
+  flex-shrink: 0;
+}
+
+/* ==================== 通用状态 ==================== */
+.card-loading {
+  opacity: 0.5;
+}
+
+.dim {
+  color: var(--text-muted) !important;
+}
+
+/* ==================== AI 异常告警横幅 ==================== */
+.ai-alert-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 28rpx;
+  background: linear-gradient(135deg, #DC2626 0%, #EF4444 50%, #F97316 100%);
+  box-shadow: 0 8rpx 32rpx rgba(220, 38, 38, 0.4);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2),
+              opacity 0.3s ease;
+}
+
+.ai-alert-banner.banner-show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ai-alert-banner.banner-hide {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.banner-icon {
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+
+.banner-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.banner-title {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 1rpx;
+}
+
+.banner-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+.banner-close {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.banner-close:active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ==================== AI 告警历史 ==================== */
+.alert-count-badge {
+  margin-left: auto;
+  background: var(--color-danger);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  font-weight: 800;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  min-width: 36rpx;
+  text-align: center;
+}
+
+.alert-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.alert-history-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 14rpx 18rpx;
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: 12rpx;
+  border-left: 6rpx solid var(--color-danger);
+  transition: background 0.2s;
+}
+
+.alert-history-item:active {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.alert-item-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--color-danger);
+  box-shadow: 0 0 8rpx rgba(239, 68, 68, 0.5);
+  flex-shrink: 0;
+}
+
+.alert-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-item-time {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.alert-item-msg {
+  font-size: 24rpx;
+  color: var(--color-danger);
+  font-weight: 600;
+}

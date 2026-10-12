@@ -1,0 +1,141 @@
+/**app.wxss**/
+
+/* ========== 设计系统 CSS 变量 (Design Tokens) ========== */
+page {
+  /* 色板 */
+  --color-primary:       #4F46E5;
+  --color-primary-light: #6366F1;
+  --color-primary-bg:    rgba(79, 70, 229, 0.04);
+  --color-primary-border: rgba(79, 70, 229, 0.08);
+  --color-success:       #10B981;
+  --color-success-light: #059669;
+  --color-warning:       #F59E0B;
+  --color-danger:        #EF4444;
+  --color-danger-dark:   #DC2626;
+  --color-info:          #3B82F6;
+
+  /* 背景渐变 */
+  --gradient-page: linear-gradient(180deg, #F0F2FF 0%, #F8FAFC 15%, #FFFFFF 100%);
+
+  /* 文字 */
+  --text-main:  #1E293B;
+  --text-sub:   #64748B;
+  --text-hint:  #94A3B8;
+  --text-muted: #CBD5E1;
+  --text-white: #FFFFFF;
+
+  /* 卡片 */
+  --radius-card:   24rpx;
+  --radius-sm:     20rpx;
+  --radius-xs:     16rpx;
+  --radius-round:  48rpx;
+  --shadow-card:   0 4rpx 24rpx rgba(79, 70, 229, 0.06), 0 1rpx 4rpx rgba(0, 0, 0, 0.04);
+
+  /* 玻璃拟态 */
+  --glass-bg:       rgba(255, 255, 255, 0.65);
+  --glass-border:   rgba(255, 255, 255, 0.8);
+  --glass-blur:     blur(12px);
+  --glass-shadow:   0 4rpx 24rpx rgba(79, 70, 229, 0.06), 0 1rpx 4rpx rgba(0, 0, 0, 0.04);
+
+  /* 渐变按钮 */
+  --btn-gradient:   linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  --btn-shadow:     0 8rpx 24rpx rgba(79, 70, 229, 0.3);
+  --btn-danger-grad: linear-gradient(135deg, #EF4444, #DC2626);
+  --btn-danger-shadow: 0 8rpx 24rpx rgba(239, 68, 68, 0.3);
+}
+
+/* 全局页面背景与基础 */
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+  color: var(--text-main);
+  background: #F8FAFC;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 通用容器 */
+.page-container {
+  min-height: 100vh;
+  padding: 24rpx 32rpx 48rpx;
+  box-sizing: border-box;
+}
+
+/* 卡片基类 */
+.card {
+  background: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 32rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.04);
+  margin-bottom: 24rpx;
+}
+
+/* 毛玻璃卡片 (全局复用) */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1rpx solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-card);
+}
+
+/* 标题风格 */
+.section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 16rpx;
+}
+
+.section-subtitle {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  margin-bottom: 24rpx;
+}
+
+/* 页面标题 */
+.page-title {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* 页面副标题 */
+.page-subtitle {
+  font-size: 26rpx;
+  color: var(--text-hint);
+}
+
+/* 按钮去除默认边框 */
+button::after { border: none; }
+button {
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+}
+
+/* 渐变按钮 */
+.btn-primary {
+  background: var(--btn-gradient);
+  color: var(--text-white);
+  border-radius: var(--radius-round);
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--btn-shadow);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 4rpx 12rpx rgba(79,70,229,0.2);
+}
+
+/* 文本省略 */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

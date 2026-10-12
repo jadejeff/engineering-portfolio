@@ -1,0 +1,200 @@
+<view class="page-container dorm-page">
+  <!-- 告警条 -->
+  <view class="alert-bar alert-{{alertType}} {{showAlert ? 'alert-show' : ''}}" bindtap="dismissAlert" wx:if="{{showAlert}}">
+    <text class="alert-msg">{{alertMessage}}</text>
+    <text class="alert-close">✕</text>
+  </view>
+
+  <!-- 页面标题 -->
+  <view class="dorm-header">
+    <view class="header-left">
+      <text class="page-title">寝室环境监测</text>
+      <text class="page-subtitle">宿管专用 · 实时数据看板</text>
+    </view>
+    <view class="live-badge">
+      <view class="live-dot {{dataLoaded ? '' : 'offline'}}"></view>
+      <text class="live-text">{{dataLoaded ? '实时' : '等待数据'}}</text>
+    </view>
+  </view>
+
+  <text class="update-time">更新于 {{lastUpdate || '--:--:--'}}</text>
+
+  <!-- 告警提示 -->
+  <view class="alert-hint">
+    <text class="alert-hint-text">🔔 异常时会弹出全局告警，切后台也能收到提醒</text>
+  </view>
+
+  <!-- 今日统计卡片 -->
+  <view class="glass-card stats-section" wx:if="{{todayDataCount > 0}}">
+    <text class="stats-title">📊 今日统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value hot">{{todayMaxTemp}}℃</text>
+        <text class="stat-label">最高温</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value cold">{{todayMinTemp}}℃</text>
+        <text class="stat-label">最低温</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayAvgTemp}}℃</text>
+        <text class="stat-label">平均温</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayAvgHum}}%</text>
+        <text class="stat-label">平均湿度</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayMaxPower}}W</text>
+        <text class="stat-label">最大功率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayAvgPower}}W</text>
+        <text class="stat-label">平均功率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayTotalEnergy}}kWh</text>
+        <text class="stat-label">日用电量</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{todayHumanCount}}次</text>
+        <text class="stat-label">有人检测</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 数据卡片宫格 -->
+  <view class="sensor-grid">
+    <!-- 温度 -->
+    <view class="sensor-card glass-card {{dataLoaded ? '' : 'card-loading'}} {{tempAlarm ? 'card-alarm' : ''}}">
+      <view class="sensor-icon-box temp-box">
+        <text class="sensor-icon">🌡️</text>
+      </view>
+      <text class="sensor-label">室内温度</text>
+      <view class="sensor-value-row">
+        <text class="sensor-value {{dataLoaded ? '' : 'dim'}}">{{temp}}</text>
+        <text class="sensor-unit">℃</text>
+      </view>
+      <view class="sensor-bar-wrap">
+        <view class="sensor-bar temp-bar">
+          <view class="bar-fill {{dataLoaded ? '' : 'loading-fill'}}" style="width: {{tempBarWidth}}%"></view>
+        </view>
+        <view class="bar-marks">
+          <text>10</text><text>25</text><text>35</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 功率 -->
+    <view class="sensor-card glass-card {{dataLoaded ? '' : 'card-loading'}} {{powerAlarm ? 'card-alarm' : ''}}" wx:if="{{isNewFormat}}">
+      <view class="sensor-icon-box power-box">
+        <text class="sensor-icon">⚡</text>
+      </view>
+      <text class="sensor-label">实时功率</text>
+      <view class="sensor-value-row">
+        <text class="sensor-value {{dataLoaded ? '' : 'dim'}}">{{power}}</text>
+        <text class="sensor-unit">W</text>
+      </view>
+      <view class="sensor-bar-wrap">
+        <view class="sensor-bar power-bar">
+          <view class="bar-fill {{dataLoaded ? '' : 'loading-fill'}}" style="width: {{powerBarWidth}}%"></view>
+        </view>
+        <view class="bar-marks">
+          <text>0</text><text>1500</text><text>3000</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 烟雾 -->
+    <view class="sensor-card glass-card {{dataLoaded ? '' : 'card-loading'}} {{smokeAlarm ? 'card-alarm' : ''}}" wx:if="{{isNewFormat}}">
+      <view class="sensor-icon-box {{smoke ? 'danger-box' : 'safe-box'}}">
+        <text class="sensor-icon">🔥</text>
+      </view>
+      <text class="sensor-label">烟雾传感器</text>
+      <text class="sensor-status {{smoke ? 'status-danger' : 'status-safe'}} {{dataLoaded ? '' : 'dim'}}">
+        {{smoke ? '报警！' : '正常'}}
+      </text>
+      <view class="smoke-ripple {{smoke ? 'ripple-active' : ''}}" wx:if="{{dataLoaded && smoke}}">
+        <view class="ripple-ring"></view>
+        <view class="ripple-ring ripple-delay"></view>
+      </view>
+    </view>
+
+    <!-- 门磁 -->
+    <view class="sensor-card glass-card {{dataLoaded ? '' : 'card-loading'}} {{doorAlarm ? 'card-alarm' : ''}}" wx:if="{{isNewFormat}}">
+      <view class="sensor-icon-box {{door ? 'warn-box' : 'safe-box'}}">
+        <text class="sensor-icon">🚪</text>
+      </view>
+      <text class="sensor-label">门磁状态</text>
+      <text class="sensor-status {{door ? 'status-warn' : 'status-safe'}} {{dataLoaded ? '' : 'dim'}}">
+        {{door ? '门已开' : '已关闭'}}
+      </text>
+    </view>
+
+    <!-- 人体感应 -->
+    <view class="sensor-card glass-card {{dataLoaded ? '' : 'card-loading'}} {{humanAlarm ? 'card-alarm' : ''}}" wx:if="{{isNewFormat}}">
+      <view class="sensor-icon-box {{human === '有人' ? 'human-yes-bg' : 'human-no-bg'}}">
+        <text class="sensor-icon">🚶</text>
+      </view>
+      <text class="sensor-label">人体感应</text>
+      <text class="sensor-status {{human === '有人' ? 'status-active' : 'status-idle'}} {{dataLoaded ? '' : 'dim'}}">{{human}}</text>
+      <view class="human-ripple {{human === '有人' ? 'ripple-active' : ''}}" wx:if="{{dataLoaded}}">
+        <view class="ripple-ring"></view>
+        <view class="ripple-ring ripple-delay"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 舒适度摘要 -->
+  <view class="glass-card summary-section" wx:if="{{dataLoaded}}">
+    <text class="summary-title">💡 环境概况</text>
+    <view class="summary-card-inner">
+      <view class="summary-item">
+        <text class="summary-label">舒适度</text>
+        <text class="summary-value">{{comfortText}}</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-label">建议</text>
+        <text class="summary-value">{{suggestionText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 异常事件日志 -->
+  <view class="event-log-section" wx:if="{{events.length > 0}}">
+    <view class="event-log-header glass-card" bindtap="toggleEventLog">
+      <view class="event-log-title-row">
+        <text class="event-log-icon">⚠️</text>
+        <text class="event-log-title">异常事件</text>
+        <text class="event-log-badge">{{events.length}}</text>
+      </view>
+      <text class="event-log-arrow {{showEventLog ? 'arrow-up' : ''}}">▶</text>
+    </view>
+    <view class="event-log-list glass-card" wx:if="{{showEventLog}}">
+      <view class="event-item" wx:for="{{events}}" wx:key="index">
+        <text class="event-icon">{{item.icon}}</text>
+        <view class="event-body">
+          <text class="event-time">{{item.time}}</text>
+          <text class="event-msg">{{item.msg}}</text>
+        </view>
+      </view>
+      <view class="event-log-empty" wx:if="{{events.length === 0}}">
+        <text>暂无异常事件</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 断开连接 -->
+  <view class="disconnect-area">
+    <button class="disconnect-btn" bindtap="disconnect">
+      <text class="disconnect-icon">🔌</text>
+      <text class="disconnect-text">断开蓝牙连接</text>
+    </button>
+  </view>
+
+  <!-- 底部 -->
+  <view class="dorm-footer">
+    <text>智控寝室助手 · 宿管看板</text>
+  </view>
+</view>

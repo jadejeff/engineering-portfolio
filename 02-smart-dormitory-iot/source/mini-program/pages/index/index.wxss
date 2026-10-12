@@ -1,0 +1,399 @@
+/* ==================== 蓝牙扫描页 ==================== */
+
+.index-page {
+  background: linear-gradient(180deg, #EEF2FF 0%, #F8FAFC 30%, #FFFFFF 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 品牌头部 */
+.brand-header {
+  text-align: center;
+  padding-top: 60rpx;
+  padding-bottom: 40rpx;
+}
+
+.brand-icon {
+  margin-bottom: 24rpx;
+}
+
+.icon-circle {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5 0%, #818CF8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 12rpx 36rpx rgba(79,70,229,0.35);
+  overflow: hidden;
+}
+
+/* 品牌 Logo：封面图 */
+.brand-logo {
+  width: 92%;
+  height: 92%;
+  border-radius: 50%;
+}
+
+.brand-title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #1E293B;
+  letter-spacing: 2rpx;
+  margin-bottom: 8rpx;
+}
+
+.brand-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #94A3B8;
+  letter-spacing: 1rpx;
+}
+
+/* 扫描区域 */
+.scan-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.scan-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  width: 100%;
+  max-width: 600rpx;
+}
+
+/* 雷达动画容器 */
+.radar-container {
+  position: relative;
+  width: 240rpx;
+  height: 240rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3rpx solid #C7D2FE;
+  opacity: 0.3;
+}
+
+.ring-1 {
+  width: 240rpx;
+  height: 240rpx;
+}
+
+.ring-2 {
+  width: 176rpx;
+  height: 176rpx;
+}
+
+.ring-3 {
+  width: 112rpx;
+  height: 112rpx;
+  border-color: #A5B4FC;
+  opacity: 0.5;
+}
+
+/* 扫描中动画 */
+.scanning .radar-ring,
+.connected .radar-ring {
+  animation: ringPulse 2s ease-out infinite;
+}
+.scanning .ring-1,
+.connected .ring-1 { animation-delay: 0s; }
+.scanning .ring-2,
+.connected .ring-2 { animation-delay: 0.4s; }
+.scanning .ring-3,
+.connected .ring-3 { animation-delay: 0.8s; }
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; border-color: #C7D2FE; }
+  50% { transform: scale(1.05); opacity: 0.7; border-color: #818CF8; }
+}
+
+/* 雷达核心 */
+.radar-core {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #EEF2FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 4rpx 16rpx rgba(79,70,229,0.15);
+}
+
+.radar-core.success {
+  background: #D1FAE5;
+  box-shadow: 0 4rpx 16rpx rgba(16,185,129,0.2);
+}
+
+.radar-icon {
+  font-size: 40rpx;
+}
+
+/* 核心脉冲 */
+.pulse {
+  animation: corePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: scale(1); background: #EEF2FF; }
+  50% { transform: scale(1.1); background: #DDD6FE; }
+}
+
+.scan-hint {
+  font-size: 28rpx;
+  color: #64748B;
+  margin-bottom: 32rpx;
+}
+
+.success-text {
+  color: #10B981;
+  font-weight: 600;
+}
+
+/* 初始化中文本 */
+.init-text {
+  color: #4F46E5;
+  font-weight: 600;
+  animation: textPulse 1.5s ease-in-out infinite;
+  margin-bottom: 24rpx;
+}
+
+@keyframes textPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 初始化步骤指示器 */
+.init-steps {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 32rpx;
+}
+
+.init-steps .step {
+  font-size: 24rpx;
+  color: #CBD5E1;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.init-steps .step.done {
+  color: #10B981;
+  font-weight: 600;
+}
+
+.init-steps .step-arrow {
+  font-size: 20rpx;
+  color: #CBD5E1;
+}
+
+/* 扫描按钮 */
+.scan-start-btn {
+  width: 360rpx;
+  height: 88rpx;
+}
+
+.scan-start-btn .btn-label {
+  font-size: 30rpx;
+}
+
+/* 进度条 */
+.scan-progress {
+  width: 280rpx;
+  height: 6rpx;
+  background: #E2E8F0;
+  border-radius: 3rpx;
+  overflow: hidden;
+  margin-bottom: 28rpx;
+}
+
+.progress-fill {
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, #4F46E5, #818CF8);
+  border-radius: 3rpx;
+  animation: progressSlide 1.5s ease-in-out infinite;
+}
+
+@keyframes progressSlide {
+  0%, 100% { width: 30%; }
+  50% { width: 80%; }
+}
+
+/* 取消按钮 */
+.scan-cancel-btn {
+  background: transparent;
+  color: #94A3B8;
+  font-size: 26rpx;
+  border: none;
+  padding: 12rpx 32rpx;
+}
+
+/* 设备列表 */
+.device-section {
+  width: 100%;
+  max-width: 660rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding: 0 4rpx;
+}
+
+.section-label {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #94A3B8;
+  background: #F1F5F9;
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+/* 设备卡片 */
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.device-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+  border: 1rpx solid #F1F5F9;
+  transition: all 0.2s;
+}
+
+.device-card:active {
+  background: #F8FAFC;
+  border-color: #C7D2FE;
+  transform: scale(0.99);
+}
+
+.device-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex: 1;
+  overflow: hidden;
+}
+
+.device-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-icon {
+  font-size: 36rpx;
+}
+
+.device-info {
+  overflow: hidden;
+}
+
+.device-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-id {
+  display: block;
+  font-size: 22rpx;
+  color: #94A3B8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-right {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex-shrink: 0;
+}
+
+/* 信号强度 — 根据 RSSI 动态激活 */
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4rpx;
+  height: 32rpx;
+}
+
+.bar {
+  width: 6rpx;
+  border-radius: 3rpx;
+  background: #E2E8F0;
+  transition: background 0.3s ease;
+}
+
+.bar-1 { height: 8rpx; }
+.bar-2 { height: 16rpx; }
+.bar-3 { height: 24rpx; }
+.bar-4 { height: 32rpx; }
+
+/* 按等级逐级亮起 */
+.bar.active { background: #818CF8; }
+.bar-4.active { background: #4F46E5; box-shadow: 0 0 8rpx rgba(79,70,229,0.3); }
+
+/* 连接文字 */
+.device-connect {
+  font-size: 24rpx;
+  color: #4F46E5;
+  font-weight: 600;
+  background: #EEF2FF;
+  padding: 10rpx 24rpx;
+  border-radius: 24rpx;
+}
+
+/* 空提示 */
+.empty-hint {
+  padding: 60rpx 40rpx;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #94A3B8;
+}
